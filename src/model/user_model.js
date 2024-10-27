@@ -30,6 +30,7 @@ const userSchema= new Schema (
             require: [true, 'Password is required']
 
         },
+        timestamp: true,
     }
 )
 
