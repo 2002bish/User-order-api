@@ -1,23 +1,21 @@
-import { User } from "../model/user_model";
+import { findByIdAndUpdate, findById } from "../model/user_model.js";
 
-const editProfile= async (req, res) => {
-    try {
-        const user= await User.findByIdAndUpdate(req.user._id,req.body,{new: true})
-        res.status(200).json(user);
-    } catch (error) {
-        res.status(500).json({message: "Error occur in profile "});
-    }
+const editProfile = async (req, res) => {
+  try {
+    const user = await findByIdAndUpdate(req.user._id, req.body, { new: true });
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Error updating profile" });
+  }
 };
-const orderViewHiostory= async (req, res) => {
-    try{
-        const order= await User.findById(req.user._id).populate("orders");
-        res.status(200).json(user.orders);
-    }
-    catch (error) {
-        req.status(500).json({message: "Error factching order history"});
-    }
-}
-export {
-editProfile,
-orderViewHiostory
-}
+
+const viewOrderHistory = async (req, res) => {
+  try {
+    const user = await findById(req.user._id).populate("orders");
+    res.status(200).json(user.orders);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching order history" });
+  }
+};
+
+export default { editProfile, viewOrderHistory };

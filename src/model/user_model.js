@@ -1,47 +1,24 @@
-import mongoose, {Schema} from "mongoose";
-import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
+import { Schema, model } from "mongoose";
+import { genSalt, hash } from "bcryptjs";
 
-const userSchema= new Schema (
-    {
-        username: {
-            type: String,
-            require: true,
-            unique: true,
-            lowercase : true,
-            index: true,
-            trim: true
-        },
-        email: {
-            type: String,
-            require: true,
-            unique: true,
-            lowercase: true
-        },
-        fullName: {
-            type: String,
-            require: true,
-            trim: true,
-            index: true
-
-        },
-        password: {
-            type: String,
-            require: [true, 'Password is required']
-
-        },
-        timestamp: true,
-    }
-)
+const userSchema = new Schema(
+  {
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    orders: [{ type: Schema.Types.ObjectId, ref: "Order" }],
+  },
+  { timestamps: true }
+);
 
 userSchema.pre("save", async function (next) {
-    if(!this.isModified("password")) 
-        return next();
-    this.password= await bcrypt.hash (this.password,10)
-   next() 
-})
-userSchema.methods.isPasswordCorrect = async function(password){
-    return await bcrypt.compare(password, this.password)
-}
+  if (!this.isModified("password")) {
+    next();
+  }
+  const salt = await genSalt(10);
+  this.password = await hash(this.password, salt);
+});
 
-export const User = mongoose.model("User", userSchema)
+const User = model("User", userSchema);
+
+export default User;
